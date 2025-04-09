@@ -38,7 +38,11 @@ RUN apt-get update && apt-get install -y \
     supervisor curl jq jc borgbackup/bookworm-backports openssh-server rsyslog && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN groupadd -g ${GID} borgwarehouse && useradd -m -u ${UID} -g ${GID} borgwarehouse
+# Check if group with GID exists; if not, create it
+RUN if ! getent group ${GID}; then groupadd -g ${GID} borgwarehouse; fi
+
+# Check if user with UID exists; if not, create it
+RUN if ! id -u ${UID}; then useradd -m -u ${UID} -g ${GID} borgwarehouse; fi
 
 RUN cp /etc/ssh/moduli /home/borgwarehouse/
 
